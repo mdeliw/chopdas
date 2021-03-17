@@ -32,6 +32,7 @@ Table of Contents
    py.md
    java-concurrency.md
    java-data-structures.md
+   modern-java.md
 
 
 Indices and tables
