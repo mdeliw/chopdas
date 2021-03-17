@@ -4,9 +4,9 @@ Table of Contents
 
 .. toctree::
    :maxdepth: 1
-   :caption: Cloud:
+   :caption: Algorithms
 
-   docker.md
+   bit-algos.md
 
 .. toctree::
    :maxdepth: 1
@@ -16,6 +16,11 @@ Table of Contents
    gradle.md
    maven.md
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Cloud:
+
+   docker.md
 
 .. toctree::
    :maxdepth: 1
@@ -23,7 +28,6 @@ Table of Contents
 
    openssl.md
    ssh.md
-
 
 .. toctree::
    :maxdepth: 1
