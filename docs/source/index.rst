@@ -38,6 +38,12 @@ Table of Contents
    java-data-structures.md
    modern-java.md
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Jainism:
+
+   jain-rajgita.md
+
 
 Indices and tables
 ==================
