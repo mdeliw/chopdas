@@ -1,5 +1,7 @@
 # Modern Java Recipes
 
+[toc]
+
 ## The Basics
 
 ### Lamda expression
@@ -234,7 +236,6 @@ int[] intArray = IntStream.of(3,1,4,1,5,9).toArray();
 
 List<Integer> ints = IntStream.of(3,1,4,1,5,9)
     .boxed().collect(Collectors.toList());
-
 ```
 
 #### # Reduction Operations - wip
@@ -337,7 +338,49 @@ List<String> strings = Stream.concat(first, second)
     .collect(Collectors.toList());
 ```
 
-###
+### When to use parallel streams
+
+By default streams are processed sequentially using a single thread.
+
+```java
+List<Integer> listOfNumbers = Arrays.asList(1,2,3);
+//single thread
+listOfNumbers.stream().forEach(number -> 
+	Sysout(number + " " + Thread.currentThread().getName()
+);
+
+//parallel thread
+listOfNumbers.parallelStream().forEach(number -> ...);
+```
+
+Parallel streams use `fork-join` framework to handle task management between threads. This framework splits the source data between worker threads and handles callback on task completion. 
+
+```java
+List<Integer> listOfNumbers = Arrays.asList(1,2,3,4);
+//assume we want to sum all digit and add 5 to it. 
+//1+2+3+4 = 10 + 5 = 15
+
+//wrong - this will add 5 to each split workload 
+int sum = listOfNumbers.parallelStream().reduce(5, Integer::sum);
+
+//correct - this will add 5 after all split workload are completed
+int sum = listOfNumbers.parallelStream().reduce(0, Integer::sum) + 5;
+```
+
+Parallel streams by default use a common thread pool which is usually equal to number of cores. You can use a custom thread pool (not recommended)
+
+```java
+List<Integer> listOfNumbers = Arrays.asList(1,2,3,4);
+ForkJoinPool customThreadPool = new ForkJoinPool(4);
+int sum = customThreadPool.submit(
+    () -> listOfNumbers.parallelStream().reduce(0, Integer::sum)
+).get();
+customThreadPool.shutdown();
+```
+
+Parallel streams can have overhead depending upon type of task.
+
+
 
 ### Lazy Stream - wip
 
@@ -515,3 +558,57 @@ Arrays.toString(arr);
 ```java
 int max = Arrays.stream(arr).max().getAsInt();
 ```
+
+## Collections
+
+### Collection Interface
+
+- Root interface, allows dups or not, allows ordered or not. 
+- No direct implementation, usually implementations are for subinterfaces such as `List` and `Set`
+- Implementations include `Set SortedSet HashSet TreeSet`, `List ArrayList LinkedList `, `Map SortedMap`, `Arrays Collections`
+- Common operations
+  - Add one element to this collection
+  - Add all elements to this collection from input collection
+  - Clear this collection, remove one element from this collection, remove all elements from this collection that exist in the input collection, remove one or more elements based on a predicate
+  - Is collection empty, what is the size of the collection
+  - Does collection contain one element or contains all elements from the input collection
+  - Convert to stream, array
+  - Get an iterator
+  - Check for equality, and get a hash
+
+### List Interface
+
+- Ordered collection - you have precise control on where in the list an element is inserted.
+- Access elements by their index, and search for elements in the list - `get set add remove`
+- Allows duplicates (`e1.equals(e2)`)
+- Special iterator `ListIterator` allows insertion, replacement, and bidirectional access, and can obtain an `Iterator` that starts at a specific position in the list. In addition to the `hastNext, next`, we also get `hasPrevious, previous`. The index refers to the element that would be returned by an initial call to `next`
+- Implementation of `ArrayList` is usually a better performant over the `LinkedList` which has better performance in special situations.
+- Unmodifiable Lists
+  - `List.of`, `List.copyOf` provide a way to create unmodifiable lists. 
+  - Unmodifiable - no adds, removes, replaces, can’t call any mutator method, however objects within the list can be mutable.
+  - No nulls, value-based, and order of elements matches the order of provided arguments
+- `Arrays.asList` allows array to be viewed as a list. This doesn’t copy the array. Changes in the list write through to the array and vice versa. Also doesn’t implement `add `
+- Few operations:
+  - `List.of`
+  - `remove(Object o)` - removes the first occurrence of the specified element if it is present.
+  - `removeAll(Collection<?> c)` - removes from this list all of its elements that are contained in the specified collection.
+  - `retainAll(Collection<?> c)` - retains in this list only those elements that are contained in the specified collection.
+  - `replaceAll(UnaryOperator<E> operator)` - replaces each element of this list with the result of applying the operator to that element
+  - `sort(Comparator<? super E> c)`
+  - `subList(int fromIndex, int toIndex)`
+  - `Object[] toArray()` and `<T> T[] toArray(T[] a)`
+
+## How to benchmark method
+
+```java
+import org.openjdk.jmh.annotations...;
+import java.util.concurrent.TimeUnit;
+
+@Benchmark
+@BenchmarkMode(Mode.averageTime)
+@OutputTimeUnit(TimeUnit.NANOSECONDS)
+public static void someMethod() {...}
+
+//java -jar your.jar
+```
+

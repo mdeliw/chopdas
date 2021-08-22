@@ -1,32 +1,56 @@
 # Gradle
 
-## Java Application as CLI
-
-```kotlin
-plugins {
-    java
-    application // for cli
-}
-repositories {
-    mavenCentral()
-}
-dependencies {
-    implementation("io.vertx:vertx-core:3.8.0")
-}
-java {
-    sourceCompatibility = org.gradle.api.JavaVersion.VERSION_1_8
-    targetCompatibility = org.gradle.api.JavaVersion.VERSION_1_8
-}
-application {
-    mainClassName = "chapter1.firstapp.VertxEcho"
-}
-```
+### Install
 
 ```bash
-./gradlew run
+#install java
+brew install adoptopenjdk11
+java -v
+#install gradle
+brew install gradle
+gradle -v
+# view deprecated versions
+gradle help --scan
+# upgrade
+gradle wrapper --gradle-version 7.1.1
 ```
 
-## Java Custom Task as CLI
+### Java Application
+
+https://docs.gradle.org/7.1.1/samples/sample_building_java_applications.html
+
+```bash
+# create gradle project
+mkdir demo
+cd demo
+gradle init
+
+# test
+./gradlew check
+
+# run
+./gradlew run
+
+# bundle
+./gradlew build
+
+# build scan
+./gradlew build --scan
+
+# find tasks
+gradle tasks
+
+#learn more of tasks
+gradle help --task <taskname>
+
+# run a task
+gradle <taskname>
+
+# view structure of multi-project build
+gradle -q projects
+```
+
+### Java Custom Task as CLI
 
 ```kotlin
 plugins {
@@ -55,9 +79,10 @@ tasks.create<JavaExec>("run") {
 ./gradlew run -PmainClass=chapter2.hello.HelloVerticle
 ```
 
+### Reference
 
+- https://docs.gradle.org/7.1.1/samples/index.html
 
-# Reference
-
+- https://spring.io/guides/gs/gradle/
 - https://gradle-initializr.cleverapps.io/
 - https://github.com/gradle/kotlin-dsl-samples

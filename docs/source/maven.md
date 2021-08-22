@@ -1,3 +1,5 @@
+[toc]
+
 # Maven
 
 ## Maven variables
@@ -15,10 +17,10 @@ $ mvn archetype:generate -B -DarchetypeGroupId=org.apache.maven.archetypes -Darc
 # or shorter
 $ mvn archetype:generate -B -DgroupId=org.deliwala -DartifactId=sample-project -Dversion=0.0.1 -DarchetypeArtifactId=maven-archetype-quickstart
 
-# quiet clean
+# quiet mode
 $ mvn -q clean package
 
-# verbose clean
+# verbose mode
 $ mvn -X clean package
 ```
 
@@ -64,9 +66,131 @@ $ mvn -q clean package -DskipTests
 $ mvn -q clean package -Dmaven.test.skip=true
 ```
 
+## Generating fat-jar as executable
+
+```bash
+$ mvn clean package
+$ java -jar <outputfolder>/fat.jar
+```
+
+Using maven assembly plugin, all dependencies are inside the jar file.  The drawback is that the plugin does not  support class relocation by renaming packages (shade plugin fixes that). 
+
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-assembly-plugin</artifactId>
+    <configuration>
+        <archive>
+            <manifest>
+                <mainClass>
+                    some.package.Class
+                </mainClass>
+            </manifest>
+        </archive>
+        <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+        </descriptorRefs>
+    </configuration>
+    <executions>
+        <execution>
+            <id>make-assembly</id>
+            <phase>package</phase>
+            <goals>
+                <goal>single</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+```
+
+Using shade plugin to package in an uber-jar which consist of all dependencies and allows shading, i.e. renaming the packages of some dependencies. 
+
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-shade-plugin</artifactId>
+    <executions>
+        <execution>
+            <phase>package</phase>
+            <goals>
+                <goal>shade</goal>
+            </goals>
+        </execution>
+        <configuration>
+            <shadedArtifactAttached>true</shadedArtifactAttached>
+            <!-- default is <project-name>-<version>-shaded.jar -->
+            <finalName>user-${artifactId}-${version}</finalName>
+            <transformers>
+                <transformer implementation=                        "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                    <mainClass>some.package.Class</mainClass>
+                    <build-Number>123</buildNumber>
+                </transformer>
+            </transformers>
+            <filters>
+                <filter>
+                    <artifact>*:*</artifact>
+                    <excludes>
+                        <exclude>META-INF/*.SF</exclude>
+                        <exclude>META-INF/*.DSA</exclude>
+                        <exclude>META-INF/*.RSA</exclude>
+                    </excludes>
+                </filter>
+            </filters>
+        </configuration>
+    </executions>
+</plugin>
+```
+
+Use a two step process by using the maven dependency plugin to create jar by first copying all dependencies into `/libs` folder and then using the maven jar plugin.  These two step do not create a fat jar, instead the executable jar will only run if the `/libs` folder will be accessible for a jar.
+
+```xml
+<packaging>jar</packaging>
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-dependency-plugin</artifactId>
+    <version>...</version>
+    <executions>
+        <execution>
+            <id>copy-dependencies</id>
+            <phase>prepare-package</phase>
+            <goals>
+                <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+                <outputDirectory>
+                    ${project.build.directory}/libs
+                </outputDirectory>
+                <excludeArtfiacts>junit</excludeArtfiacts>
+                <overWriteIfNew>true</overWriteIfNew>
+            </configuration>configuration>
+        </execution>
+    </executions>
+</plugin>
+```
+
+then use the maven jar plugin to  create executable and classpath aware jar with the link to the dependencies copied in the previous step
+
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-jar-plugin</artifactId>
+    <version>...</version>
+    <configuration>
+        <archive>
+            <manifest>
+                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                <addClasspath>true</addClasspath>
+                <classpathPrefix>libs/</classpathPrefix>
+                <mainClass>some.package.App</mainClass>
+            </manifest>
+        </archive>
+    </configuration>
+</plugin>
+```
 ## Executing program in mvn
 
-### `exec:java`
+### exec:java
 
 Class provided in command line
 
@@ -97,7 +221,7 @@ mvn exec:exec
 </plugin>
 ```
 
-### `exec:java@App1`
+### exec:java@App1
 
 Wire multiple main classes
 
@@ -190,7 +314,7 @@ mvn exec:exec@run-app
 </properties>
 ```
 
-exec:exec@App
+### exec:exec@App
 
 ```xml
 <plugin>
@@ -238,7 +362,7 @@ exec:exec@App
 </plugin>
 ```
 
-## Examples
+### Examples
 
 ```bash
 # some examples run the program in the same jvm that loaded mvn.
@@ -256,126 +380,6 @@ $ mvn exec:java -Dexec.args="arg1 arg2"
 $ mvn exec:exec@run-app
 $ mvn exec:exec
 $ mvn exec:exec@App1
-```
-
-## Generating fat-jar
-
-```bash
-$ mvn package
-$ java -jar <outputfolder>/fat.jar
-```
-
-```xml
-<plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-dependency-plugin</artifactId>
-    <version>?</version>
-    <executions>
-        <execution>
-            <id>copy-dependencies</id>
-            <phase>prepare-package</phase>
-            <goals>
-                <goal>copy-dependencies</goal>
-            </goals>
-            <configuration>
-                <outputDirectory>
-                    ${project.build.directory}/{$project.build.finalName}.lib
-                </outputDirectory>
-                <excludeArtfiacts>junit</excludeArtfiacts>
-                <overWriteIfNew>true</overWriteIfNew>
-            </configuration>configuration>
-        </execution>
-    </executions>
-</plugin>
-```
-
-Or..
-
-```xml
-<plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-jar-plugin</artifactId>
-    <version>3.0.2</version>
-    <configuration>
-        <archive>
-            <manifest>
-                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                <addClasspath>true</addClasspath>
-                <classpathPrefix>${project.build.finalName}.lib</classpathPrefix>
-                <mainClass>some.package.App</mainClass>
-            </manifest>
-        </archive>
-    </configuration>
-</plugin>
-```
-
-Or using `assembly`
-
-```xml
-<plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-assembly-plugin</artifactId>
-    <executions>
-        <execution>
-            <phase>package</phase>
-            <goals>
-                <goal>single</goal>
-            </goals>
-            <configuration>
-                <archive>
-                    <manifest>
-                        <mainClass>
-                            some.package.Class
-                        </mainClass>
-                    </manifest>
-                </archive>
-                <descriptorRefs>
-                    <descriptorRef>jar-with-dependencies</descriptorRef>
-                </descriptorRefs>
-            </configuration>
-        </execution>
-    </executions>
-</plugin>
-
-```
-
-Or using Shade
-
-```xml
-<plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-shade-plugin</artifactId>
-    <executions>
-        <execution>
-            <phase>package</phase>
-            <goals>
-                <goal>shade</goal>
-            </goals>
-            <configuration>
-                <shadedArtifactAttached>true</shadedArtifactAttached>
-                <!-- default is <project-name>-<version>-shaded.jar -->
-                <finalName>user-${artifactId}-${version}</finalName>
-                <transformers>
-                    <transformer implementation=                        "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                        <mainClass>some.package.Class</mainClass>
-                        <build-Number>123</buildNumber>
-                    </transformer>
-                </transformers>
-                <filters>
-                    <filter>
-                        <artifact>*:*</artifact>
-                        <excludes>
-                            <exclude>META-INF/*.SF</exclude>
-                            <exclude>META-INF/*.DSA</exclude>
-                            <exclude>META-INF/*.RSA</exclude>
-                        </excludes>
-                    </filter>
-                </filters>
-            </configuration>
-        </execution>
-    </executions>
-</plugin>
 ```
 
 ## Using profile

@@ -1,46 +1,30 @@
 # Git
 
-## Install
+### Setup
 
 ```bash
 brew install git
 git --version
-```
 
-# SSH setup
-
-For details on generation of SSH keys, see git.md
-
-1. Login to your GitHub account and go to https://github.com/settings/profile
-2. Click on “SSH and GPG Keys” to load the SSH key management page.
-3. Click on “New SSH key”
-4. Enter an appropriate title name.
-5. Paste the public SSH key in the key text box.
-6. Click on “Add SSH key”
-
-Test your GitHub authorization
-
-```bash
-git clone git@github.com:<Name>/<Name>.git
-# or
+# test ssh
 ssh -T git@github.com
 ```
 
-# Git Commands
-
-## Terms
+### Basics
 
 - `origin` -A default remote pointer to your repo on github
-- `master` - Default branch on the repo
-- `origin/master` - is a remote tracking branch on local. This is not a local branch. Its hidden and is supposed to stay in sync with `master` on remote  `origin`.
+- `master` - Default branch
+- `origin/master` - a remote tracking branch on local. Its hidden and is supposed to stay in sync with `master` on remote  `origin`.
 - Working directory -> Staging -> Head.
   - `add` updates Staging from working directory.
   -  `reset` overrides Staging with last commit on Head. You undo an `add` with a `reset`.
   - `checkout` overwrites working directory with a copy from staging. You undo an edit with `checkout`.
 
-## .Gitignore
+### .Gitignore
 
 ```bash
+# ~/.gitignore_global can have .gitignore entries
+
 $ cat .gitignore
 *.[oa]
 *~
@@ -58,7 +42,7 @@ doc/*.txt
 doc/**/*.pdf
 ```
 
-## Working with Local Repo
+### Working with Local Repo
 
 ```bash
 # create local repo
@@ -69,12 +53,13 @@ git init
 # ... make some changes
 
 # status
-git status # shows which files changed
 git status -s # short version
+git status # shows which files changed
 
 # add
 git add .  # or
-git add -i # interactive add
+git add -A # or
+git add -i # interactive
 
 # commit
 git commit -m 'some comment'
@@ -83,37 +68,79 @@ git commit -m 'some comment'
 git commit -a # implicitly add files already existing in the last commit
 ```
 
-## Working with Remote
+### Working with Remote
 
-> Remote must exist before hand on Github. There is no cli to create a remote.
+> Remote must exist before hand on Github.
 
 ```bash
 # clone a remote repo
 git clone <your.remote.git> <your.output.directory>
+```
 
-# Connect a local to a remote repo.
-# Scenario: You have an empty repo on Github, and you never cloned it.
-# But on local you have a repo that you wish to connect to this empty repo.
-git remote add origin https://your.remote.git
+**Connect a local repo to a remote repo:**
 
-# Connect a local to a remote repo.
-# Scenario: You fork someone's repo into your repo.
-# 1. You fork original repo to your repo
-# 2. You clone your repo to local. A default remote "origin" is created
-# 3. You want to add another remote to your local - lets call is upstream
-git remote add upstream https://original.repo.git
+Scenario: You have an empty repo on Github, and you never cloned it. But on local you have a repo that you wish to connect to this empty repo.
 
-# Commands below are same. They create the remote tracking branch on local
-git push -u origin master
+```bash
+cd local_repo
+git remote add origin https://your.remote.git # link local to remote
+
+# or the below two achieve the same result
+git push -u origin master  # first time link to remote and push to remote
 git push --set-upstream origin master
+```
 
-# example: setup upstream branch using git push
+Scenario: You fork someone's repo into your repo.
+
+1. You fork original repo to your repo
+2. You clone your repo to local. A default remote "origin" is created
+
+3. You want to add another remote to your local - lets call is upstream
+
+```bash
+git remote add upstream https://original.repo.git
+```
+
+Scenario: You setup a remote branch using git push
+
+```bash
 git checkout -b new_branch
 git branch -vv # won't show a tracking branch for new_branch
+
+# -u requires first time only
 git push -u origin new_branch # or..
 git push -u origin HEAD
-git branch -vv # now shows a tracking branch for new_branch
 
+git branch -vv # now shows a tracking branch for new_branch
+```
+
+Scenario: You have a local folder `dev` which is not yet tracked against an existing remote branch
+
+```bash
+cd dev
+git checkout --track origin/dev # or
+git branch -u origin/dev 
+```
+
+Misc commands
+
+```bash
+# show remote servers configured on local
+git remote # by default it would show origin
+git remote -v
+git remote -vv # also include tracking branches on local
+git remote show <remote> # inspecting a remote
+
+# rename a remote
+git remote rename <old_name> <new_name>
+
+# remove a remote
+git remote remove <remote_to_be_removed>
+```
+
+
+
+```bash
 # use alias on git config
 git config --global alias.pushd "push -u origin HEAD"
 git pushd
@@ -121,32 +148,10 @@ git pushd
 alias gp='git push -u origin HEAD'
 gp
 
-# Scenario You have a local folder 'dev' which is not yet tracked against an existing remote
-cd dev # assumed already on local git
-git checkout --track origin/dev # or..
-git branch -u <remote>/<branch> # local branch exists
 
 # fetch and pull
 git fetch <remote_repo_name> # fetch and pull from remote into staging
 git pull # fetches and merges into working directory
-
-# optionally Curl can create a remote repo on github
-curl -u <your_username> \
-       -H "Content-Type: application/json" \
-       -d '{"name":"<repo_name>"}' https://api.github.com/user/repos
-
-# show remote servers configured on local
-git remote # by default it would show origin
-git remote -v
-git remote -vv # also include tracking branches on local
-git remote show <remote> # inspecting a remote
-git remote show origin
-
-# rename a remote
-git remote rename <old_name> <new_name>
-
-# remove a remote
-git remote remove <remote_to_be_removed>
 
 ```
 
@@ -166,7 +171,7 @@ git pull --rebase origin master
 git push origin master
 ```
 
-## Diff Command
+### Diff Command
 
 ```bash
 git diff # diff between Working directory and Staging
@@ -459,16 +464,15 @@ git push origin --delete old_branch_name # delete old branch on remote
 
 # delete branch
 git branch -d my-branch # local
-git push <remotename>:<branchname> # remote
-git push origin :my-branch 	# remote
-git push origin :branch1 :branch2 :branch3
+git push <remotename> --delete <branchname> # remote
 
 # create a branch and push to remote
  git checkout -b my-branch	# create branch and switch to it
+ git push -u origin my-branch # push to remote
 
 # make changes, git add, git commit -m etc...
 # push the branch to remote for others to see
- git push <remotename> <branchname> # first time
+ git push <remotename> <branchname>:<branchname> # first time
  git push -u origin my-branch <can be master>
 
 # remote branches

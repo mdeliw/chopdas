@@ -1,5 +1,19 @@
 # Fourth fundamental truth - Jeev Karta Chhe
 
+- Verse 79 - Disciple’s doubt 1 - Karma is not intelligent, can’t give fruit
+- Verse 80 - Disciple’s doubt 2 - Only God can give fruit to explain how karma works
+- Verse 81 - Disciple’s confusion - Total confusion, can’t be God - then what?
+- Verse 82 - Guru’s explanation for doubt 1 - Bondage
+- Verse 83 - Guru’s explanation for doubt 1 - Fruits
+- Verse 84 - Guru’s explanation for doubt 1 - Fruits
+- Verse 85 - Guru’s explanation for doubt 2 - Karma designed to give fruit, God not required
+- Verse 86 - Guru’s explanation for Disciple’s confusion
+- Verse 87 - Disciple’s doubt 1 - There is no liberation
+- Verse 88 - Disciple’s doubt 2 - Soul have no existence without karmas
+- Verse 89 - Guru’s explanation for doubt 1 - Cessation of Karmas
+- Verse 90 - Guru’s explanation for doubt 1 - Cessation of Karmas 
+- Verse 91 - Guru’s explanation for doubt 2 - Concept of Karma
+
 ## Verse 79 - Disciple's doubt 1 - Karmas are devoid of the ability to know.
 
 તે કર્મનું ભોક્તાપણું જીવને નહીં હોય, એમ શિષ્ય કહે છે:-
