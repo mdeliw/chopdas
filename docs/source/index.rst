@@ -4,12 +4,6 @@ Table of Contents
 
 .. toctree::
    :maxdepth: 1
-   :caption: Algorithms
-
-   bit-algos.md
-
-.. toctree::
-   :maxdepth: 1
    :caption: Build Tools:
 
    git.md
@@ -33,10 +27,12 @@ Table of Contents
    :maxdepth: 1
    :caption: Programming Languages:
 
+   bit-algos.md
    py.md
    java-concurrency.md
-   java-data-structures.md
-   modern-java.md
+   java-collections.md
+   java-modern.md
+   java-code-snippets.md
 
 .. toctree::
    :maxdepth: 1
