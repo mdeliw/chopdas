@@ -121,7 +121,7 @@ Using shade plugin to package in an uber-jar which consist of all dependencies a
             <!-- default is <project-name>-<version>-shaded.jar -->
             <finalName>user-${artifactId}-${version}</finalName>
             <transformers>
-                <transformer implementation=                        "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                <transformer implementation= "org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                     <mainClass>some.package.Class</mainClass>
                     <build-Number>123</buildNumber>
                 </transformer>
