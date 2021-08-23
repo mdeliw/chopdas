@@ -504,7 +504,7 @@ public void getSnacksForMovie(){
 
 Both the *getPopCorn()* and *getDrink()* are executed in parallel. Once both of them have completed, they are passed as input to our supplier function to print the result *snackReady().* The input is a second CompletionStage and a supplier function that executes with the two results as arguments. The result returned is a new CompletionStage.
 
-#### # Interview
+## Microbenchmark
 
-- Can you tell me some of the constructor signatures for `Thread` class?
-  - (), (Runnable), (Runnable, name), (ThreadGroup, Runnable), (ThreadGroup, Runnable, name)
+https://www.baeldung.com/java-microbenchmark-harness
+

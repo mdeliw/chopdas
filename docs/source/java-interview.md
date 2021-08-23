@@ -1,5 +1,7 @@
 
 
+# java-interview
+
 ### java.nio package
 
 - What is the difference between Java NIO and IO package?
@@ -25,7 +27,9 @@ Article: https://www.baeldung.com/java-unsafe
 
 ### JVM Internals
 
+Can you tell me some of the constructor signatures for `Thread` class?
 
+- (), (Runnable), (Runnable, name), (ThreadGroup, Runnable), (ThreadGroup, Runnable, name)
 
 
 

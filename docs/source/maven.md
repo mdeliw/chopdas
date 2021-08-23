@@ -1,37 +1,32 @@
-[toc]
-
 # Maven
 
-## Maven variables
-
-```
-project.base.*
-project.build.*
-```
+[toc]
 
 ## Generating project
 
 ```bash
-$ mvn archetype:generate -B -DarchetypeGroupId=org.apache.maven.archetypes -DarchetypeArtifactId=maven-archetype-quickstart -DarchetypeVersion=1.1 -DgroupId=org.deliwala -DartifactId=sample-project -DVersion=0.1-SNAPSHOT
+# oh-my-zsh
+mvnag
+
+mvn archetype:generate -B -DarchetypeGroupId=org.apache.maven.archetypes -DarchetypeArtifactId=maven-archetype-quickstart -DarchetypeVersion=1.1 -DgroupId=org.deliwala -DartifactId=sample-project -DVersion=0.1-SNAPSHOT
 
 # or shorter
-$ mvn archetype:generate -B -DgroupId=org.deliwala -DartifactId=sample-project -Dversion=0.0.1 -DarchetypeArtifactId=maven-archetype-quickstart
+mvn archetype:generate -B -DgroupId=org.deliwala -DartifactId=sample-project -Dversion=0.0.1 -DarchetypeArtifactId=maven-archetype-quickstart
 
 # quiet mode
-$ mvn -q clean package
+mvn -q clean package
 
 # verbose mode
-$ mvn -X clean package
+mvn -X clean package
 ```
 
 ## Compiler option
 
 ```bash
-$ mvn compile
+mvn compile
 ```
 
 ```xml
-<!-- We specify the Maven compiler plugin as we need to set it to Java 1.8 -->
 <plugin>
   <artifactId>maven-compiler-plugin</artifactId>
   <version>3.1</version>
@@ -68,12 +63,14 @@ $ mvn -q clean package -Dmaven.test.skip=true
 
 ## Generating fat-jar as executable
 
+Three approaches explained:
+
 ```bash
 $ mvn clean package
-$ java -jar <outputfolder>/fat.jar
+$ java -jar <outputfolder>/some-fat.jar
 ```
 
-Using maven assembly plugin, all dependencies are inside the jar file.  The drawback is that the plugin does not  support class relocation by renaming packages (shade plugin fixes that). 
+With maven assembly plugin, all dependencies are inside the jar file.  The drawback is the plugin does not  support renaming packages  (shade plugin fixes that). 
 
 ```xml
 <plugin>
@@ -103,7 +100,7 @@ Using maven assembly plugin, all dependencies are inside the jar file.  The draw
 </plugin>
 ```
 
-Using shade plugin to package in an uber-jar which consist of all dependencies and allows shading, i.e. renaming the packages of some dependencies. 
+With shade plugin, package in an uber-jar to include all dependencies and optionally shade i.e. renaming the packages of some dependencies. 
 
 ```xml
 <plugin>
@@ -141,7 +138,7 @@ Using shade plugin to package in an uber-jar which consist of all dependencies a
 </plugin>
 ```
 
-Use a two step process with the maven dependency plugin to create jar by copying all dependencies into `/libs` folder and then using the maven jar plugin.  These approach does not create a fat jar, instead the executable jar will only run if the `/libs` folder will be accessible for a jar.
+Use a two step process with the maven dependency plugin to create jar by copying all dependencies into `/libs` folder and then using the maven jar plugin to create executable and classpath-aware jar with the link to the dependencies from the maven dependency plugin.  These approach does not create a fat jar, instead the executable jar will only run if the `/libs` folder will be accessible for a jar.
 
 ```xml
 <packaging>jar</packaging>
@@ -168,7 +165,7 @@ Use a two step process with the maven dependency plugin to create jar by copying
 </plugin>
 ```
 
-then use the maven jar plugin to  create executable and classpath aware jar with the link to the dependencies copied in the previous step
+then use the maven jar plugin 
 
 ```xml
 <plugin>

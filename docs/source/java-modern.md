@@ -1,12 +1,8 @@
 # Modern Java Recipes
 
-[toc]
-
-## The Basics
-
 ### Lamda expression
 
-Body with a single line with no braces is a `Lambda expression`. It is an implementation of the functional interface method, and can be assigned to a reference of that functional interface type as long as it is compatible with the method signature. A lambda can be an argument to a function, a return type from a method, or assigned to a reference, and in each case, the type of the assignment must be a functional interface.
+Body with a single line with no braces, and is an implementation of a functional interface method. It can be assigned to a reference of that functional interface type as long as it is compatible with the method signature. A lambda can be an argument to a function, a return type from a method, or assigned to a reference, and in each case, the type of the assignment must be a functional interface.
 
 ```java
 //old
@@ -21,12 +17,12 @@ public class RunnableDemo() {
     }
 }
 
-//lamda as a method argument
-new Thread(()-> System.out.println("Hello")).start();
-
-// lambda assigned to a reference of a functional interface type
-Runnable r = () -> System.out.println("Hello"));
+//lambda assigned to a reference of a functional interface type
+Runnable r = () -> sout("Hello"));
 new Thread(r).start();
+
+//lamda as a method argument
+new Thread(()-> sout("Hello")).start();
 ```
 
 ### Block Lamda
@@ -35,14 +31,14 @@ Braces allow for multiple statements, and the `return` keyword is required.
 
 ### Method Reference
 
-Treat an existing method (static or instance) as a lamda expression. There are three forms of the method reference, and the last form has a variation.
+Treat a method as a lamda expression. There are 3 forms , and the last form has a variation.
 
 `object::instanceMethod` - instance method on the object.
 
 ```java
-x -> System.out.println(x); // context provides x as method argument
+x -> sout(x); // context provides x as method argument
 // becomes
-x -> System.out::println;
+x -> sout::println;
 ```
 
 `Class::staticMethod` - static method on the class.
@@ -74,7 +70,7 @@ Stream.generate(Math::random)		// generate takes a static method as a Supplier
     .forEach(System.out::println);	// instance method
 ```
 
-`Class::instanceMethod` - context provides the object to the instance method (of the object) references under the class. (really confusing)
+`Class::instanceMethod` - context provides the object to the instance method (of the object) referenced under the class (confusing).
 
 ```java
 x -> x.length(); // context provides x as supplied object, rather than as an argument.
@@ -82,7 +78,7 @@ x -> x.length(); // context provides x as supplied object, rather than as an arg
 x -> String::length;
 ```
 
-A variation of this form is if the method takes multiple arguments via class name, the first element supplied by context is the supplied object, and the remaining elements are the arguments to the methods.
+A variation of this form is the method takes multiple arguments via class name, the first element supplied by context is the object, and the remaining elements are the arguments to the methods.
 
 ```java
 List<String> strings =
@@ -91,6 +87,7 @@ List<String> sorted = strings.stream()
     .sorted((s1, s2) -> s1.compareTo(s2))  // multiple arguments, s1 is the object
     .collect(Collectors.toList());
 
+// becomes a mess
 List<String> sorted = strings.stream()
     .sorted(String::compareTo)	// s1 is the object, s2 is the argument
     .collect(Collectors.toList());
@@ -101,7 +98,7 @@ Stream.of("this", "is", "a", "list", "of", "strings")
     .forEach(System.out::println);	// instance method via object
 ```
 
-### Constructor References
+### Constructor Reference
 
 Instantiate an object using method reference.
 
@@ -109,11 +106,12 @@ Instantiate an object using method reference.
 List<String> names = people.stream()
     .map(person->person.getName()) // Lambda expression
     .collect(Collectors.toList());
+
 // becomes
 List<String> names = people.stream()
     .map(Person::getName) // Method reference
     .collect(Collectors.toList());
-// ---
+
 List < String > names =
     Arrays.asList ( "Grace Hopper" ,"Barbara Liskov" ,"Ada Lovelace" ,"Karen Spärck Jones" ) ;
 
@@ -126,7 +124,7 @@ List<Person> person = names.stream()
     .collect(Collectors.toList());
 ```
 
-## java.util.function package
+## java.util.function
 
 ### Consumer
 
@@ -271,72 +269,9 @@ String s = Stream.of("this", "is", "a", "list")
     .reduce("", String::concat);
 ```
 
-### Stream of Random numbers
-
-```java
-Random r = new Random();
-r.ints(5).sorted().forEach(...);
-r.doubles()...;
-r.longs()...;
-```
-
-
-
-### Strings to Streams and back
-
-Although Strings are collections of characters, `String` is not part of the Collections framework, and doesn’t implement `Iterable`, so there is no stream factory to convert String into a Stream. Also there is no `Arrays.stream` for `char[]`.
-
-```java
-string.toLowerCase().codePoints() // returns IntStream
-    .collect(StringBuilder::new, // supplier
-             StringBuilder::appendCodePoint, // BiConsumer accumulator
-             StringBuilder::append) // BiConsumer combiner
-    .toString();
-```
-
-### Counting
-
-```java
-long count = Stream.of(...).count();
-long count = Stream.of(...).collect(Collectors.counting());
-Map<Boolean, Long> numberLengthMap = strings.stream()
-    .collect(Collectors.partitioningBy(
-    	s -> s.length() % 2 == 0, // predicate
-    	Collectors.counting())); // collector
-```
-
-### findFirst, findAny
-
-```java
-Optional<Integer> firstEven = Stream.of(...)
-    .filter(n -> n % 2 == 0)
-    .findFirst();
-
-Optional<Integer> firstEvenGT10 = Stream.of(...)
-    .filter( n -> n > 10)
-    .filter(n -> n % 2 == 0)
-    .findFirst();
-
-Optional<Integer> any = Stream.of(...)
-    .unordered()
-    .parallel()
-    .findAny();
-
-
-```
-
 ### anyMatch, allMatch, and noneMatch - wip
 
 ### Stream flatMap versus Map - wip
-
-### Concatenating Streams
-
-```java
-Stream<String> first = Stream.of(a,b,c);
-Stream<String> second = Stream.of(x,y,z);
-List<String> strings = Stream.concat(first, second)
-    .collect(Collectors.toList());
-```
 
 ### When to use parallel streams
 
@@ -380,21 +315,7 @@ customThreadPool.shutdown();
 
 Parallel streams can have overhead depending upon type of task.
 
-
-
 ### Lazy Stream - wip
-
-## Comparators and Collectors
-
-### Sorting using Comparator
-
-```java
-string.stream()
-	.sorted
-    .sorted((s1,s2) -> s1.length() - s2.length())
-    .sorted(Comparator.comparingInt(String::length))
-	.collect(Collectors.toList());
-```
 
 ### Converting Stream into a Collection
 
@@ -533,30 +454,6 @@ CompletableFuture<Integer> completableFuture =
     	.thenCombine(
     		CompletableFuture.supplyAsync(() -> y), (n1, n2) -> n1 + n2));
 System.out.println(completableFuture.get());
-
-
-```
-
-## Common Code
-
-### Create Array with random values within a range
-
-```java
-Random r = new Random();
-// 100 elements, range of -10 to 20
-int[] arr = r.ints(100, -10, 20).toArray();
-```
-
-### Print an Array
-
-```java
-Arrays.toString(arr);
-```
-
-### Find a max in Array
-
-```java
-int max = Arrays.stream(arr).max().getAsInt();
 ```
 
 ## Collections
@@ -597,18 +494,3 @@ int max = Arrays.stream(arr).max().getAsInt();
   - `sort(Comparator<? super E> c)`
   - `subList(int fromIndex, int toIndex)`
   - `Object[] toArray()` and `<T> T[] toArray(T[] a)`
-
-## How to benchmark method
-
-```java
-import org.openjdk.jmh.annotations...;
-import java.util.concurrent.TimeUnit;
-
-@Benchmark
-@BenchmarkMode(Mode.averageTime)
-@OutputTimeUnit(TimeUnit.NANOSECONDS)
-public static void someMethod() {...}
-
-//java -jar your.jar
-```
-
